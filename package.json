@@ -1,0 +1,13 @@
+{
+  "name": "mimojs",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "generate": "node scripts/generate-component.js"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "vite": "^5.0.0"
+  }
+}
