@@ -19,7 +19,7 @@
     </div>
 
     <script type="module">
-        if (import.meta.env.DEV) {
+        if (location.hostname === "localhost") {
             import("/src/main.ts")
         } else {
             import("./mimojs.mjs")
