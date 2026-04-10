@@ -17,14 +17,15 @@
     <div style="margin-top: 20px;">
         <mimo-card></mimo-card>
     </div>
-    
-    <script type="module">
-        if (location.hostname === "localhost") {
+
+     <script type="module">
+        if (import.meta.env.DEV) {
             import("/src/main.ts")
         } else {
-            import("/mimojs/mimojs.es.js")
+            import("./mimojs.es.js")
         }
     </script>
+
 
 </body>
 
