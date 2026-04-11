@@ -1,32 +1,50 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
+  <head>
+    <title>MimoJSt</title>
+  </head>
 
-<head>
-    <title>MimoJS</title>
-</head>
-
-<body>
+  <body>
     <h1>MimoJS Web Components</h1>
-    <mimo-input></mimo-input>
-    <div style="margin-top: 20px;">
-        <mimo-button></mimo-button>
-    </div>
-    <div style="margin-top: 20px;">
-        <mimo-radio></mimo-radio>
-    </div>
-    <div style="margin-top: 20px;">
-        <mimo-card></mimo-card>
-    </div>
+    <mimo-input id="nome" value="Digite seu nome"></mimo-input>
+    <mimo-input id="sobrenome" value="Digite seu sobrenome"></mimo-input>
 
-    <script type="module">
-        if (location.hostname === "localhost") {
-            import("/src/main.ts")
-        } else {
-            import("./mimojs.mjs")
-        }
+    <div style="margin-top: 20px">
+      <mimo-button></mimo-button>
+    </div>
+    <div style="margin-top: 20px">
+      <mimo-radio></mimo-radio>
+    </div>
+    <div style="margin-top: 20px">
+      <mimo-card></mimo-card>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+    <script>
+      customElements.whenDefined("mimo-input").then(() => {
+        const nome = document.querySelector("#nome");
+        nome.setAttributes({
+          disabled: false,
+          data: "campo-text",
+          placeholder: "Digite seu nome",
+          maxlength: "20",
+        });
+        console.log("nome:", nome);
+        nome.addEventListener("valueChange", (e) => {
+          console.log("nome mudou:", e.detail);
+        });
+
+        const sobrenome = document.querySelector("#sobrenome");
+        sobrenome.setAttributes({
+          disabled: false,
+          data: "campo-text",
+          placeholder: "Digite seu sobrenome",
+          maxlength: "20",
+        });
+        console.log("sobrenome:", sobrenome);
+        sobrenome.addEventListener("valueChange", (e) => {
+          console.log("sobrenome mudou:", e.detail);
+        });
+      });
     </script>
-
-
-</body>
-
+  </body>
 </html>
