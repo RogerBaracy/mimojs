@@ -1,102 +1,141 @@
-const fs = require('fs')
-const path = require('path')
+const fs = require("fs");
+const path = require("path");
 
-const name = process.argv[2]
+// ===============================
+// 📥 INPUT
+// ===============================
 
-if (!name) {
-  console.log('Informe o nome do componente')
-  console.log('npm run generate mimo-input')
-  process.exit()
+const input = process.argv[2];
+
+if (!input) {
+  console.error("❌ Informe o nome do componente");
+  console.log("👉 Exemplo:");
+  console.log("npm run generate mimo-input");
+  console.log("npm run generate inputs/mimo-input");
+  process.exit(1);
 }
 
-const folder = `src/components/${name}`
-const mainFile = 'src/main.ts'
+// ===============================
+// 🔧 HELPERS
+// ===============================
 
-if (fs.existsSync(folder)) {
-  console.log('Componente já existe')
-  process.exit()
+const toKebabCase = (str) =>
+  str
+    .replace(/([a-z])([A-Z])/g, "$1-$2")
+    .replace(/\s+/g, "-")
+    .toLowerCase();
+
+const toPascalCase = (str) =>
+  str
+    .split("-")
+    .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+    .join("");
+
+// 👉 ler template
+const readTemplate = (filePath) => {
+  return fs.readFileSync(filePath, "utf-8");
+};
+
+// 👉 substituir variáveis
+const applyTemplate = (template, variables) => {
+  let result = template;
+
+  Object.keys(variables).forEach((key) => {
+    const regex = new RegExp(`__${key}__`, "g");
+    result = result.replace(regex, variables[key]);
+  });
+
+  return result;
+};
+
+// ===============================
+// 📁 BASE PATH
+// ===============================
+
+const baseComponentsPath = path.join(__dirname, "../src/components");
+const templatesPath = path.join(__dirname, "../templates/component");
+
+// ===============================
+// 🧩 PROCESSA INPUT
+// ===============================
+
+let normalizedInput = input.replace(/^src\/components\//, "");
+
+const parts = normalizedInput.split("/");
+const rawName = parts.pop();
+const subPath = parts.join("/");
+
+// nomes
+const kebabName = toKebabCase(rawName);
+const className = toPascalCase(kebabName);
+
+// caminhos
+const folderPath = path.join(baseComponentsPath, subPath, kebabName);
+
+const tsPath = path.join(folderPath, `${kebabName}.ts`);
+const htmlPath = path.join(folderPath, `${kebabName}.html`);
+const cssPath = path.join(folderPath, `${kebabName}.css`);
+
+// ===============================
+// 📁 CRIA PASTA
+// ===============================
+
+if (!fs.existsSync(folderPath)) {
+  fs.mkdirSync(folderPath, { recursive: true });
 }
 
-fs.mkdirSync(folder, { recursive: true })
+// ===============================
+// 🚫 EVITA SOBRESCREVER
+// ===============================
 
-const className = name
-  .split('-')
-  .map(x => x.charAt(0).toUpperCase() + x.slice(1))
-  .join('')
-
-/* =====================
-   TS
-===================== */
-
-fs.writeFileSync(
-  `${folder}/${name}.ts`,
-`import template from './${name}.html?raw'
-import style from './${name}.css?raw'
-
-export class ${className} extends HTMLElement {
-
-  constructor() {
-    super()
-
-    const shadow = this.attachShadow({ mode: 'open' })
-
-    shadow.innerHTML = \`
-      <style>\${style}</style>
-      \${template}
-    \`
-  }
-
-  connectedCallback() {
-
-  }
-
+if (fs.existsSync(tsPath)) {
+  console.error("❌ Componente já existe!");
+  process.exit(1);
 }
 
-customElements.define('${name}', ${className})
-`
-)
+// ===============================
+// 📄 LÊ TEMPLATES
+// ===============================
 
-/* =====================
-   HTML
-===================== */
+const tsTplPath = path.join(templatesPath, "component.ts.tpl");
+const htmlTplPath = path.join(templatesPath, "component.html.tpl");
+const cssTplPath = path.join(templatesPath, "component.css.tpl");
 
-fs.writeFileSync(
-  `${folder}/${name}.html`,
-`<div>
-  ${name} works!
-</div>`
-)
-
-/* =====================
-   CSS
-===================== */
-
-fs.writeFileSync(
-  `${folder}/${name}.css`,
-`div {
-  padding: 10px;
-}`
-)
-
-/* =====================
-   Atualizar main.ts
-===================== */
-
-if (!fs.existsSync(mainFile)) {
-  console.log('main.ts não encontrado')
-  process.exit()
+if (!fs.existsSync(tsTplPath)) {
+  console.error("❌ Template TS não encontrado");
+  process.exit(1);
 }
 
-let mainContent = fs.readFileSync(mainFile, 'utf-8')
+// ===============================
+// 🧩 VARIÁVEIS
+// ===============================
 
-const importLine = `import './components/${name}/${name}'`
+const variables = {
+  KEBAB: kebabName,
+  CLASS: className,
+};
 
-if (!mainContent.includes(importLine)) {
-  mainContent += `\n${importLine}\n`
-  fs.writeFileSync(mainFile, mainContent)
-  console.log('main.ts atualizado')
-}
+// ===============================
+// 🧱 GERA CONTEÚDO
+// ===============================
 
-/* ===================== */
+const tsTemplate = applyTemplate(readTemplate(tsTplPath), variables);
+const htmlTemplate = applyTemplate(readTemplate(htmlTplPath), variables);
+const cssTemplate = applyTemplate(readTemplate(cssTplPath), variables);
 
-console.log(`Componente ${name} criado com sucesso`)
+// ===============================
+// 💾 ESCREVE ARQUIVOS
+// ===============================
+
+fs.writeFileSync(tsPath, tsTemplate);
+fs.writeFileSync(htmlPath, htmlTemplate);
+fs.writeFileSync(cssPath, cssTemplate);
+
+// ===============================
+// ✅ FINAL
+// ===============================
+
+console.log(`\n✅ Componente criado com sucesso!`);
+console.log(`📦 Nome: ${kebabName}`);
+console.log(`📁 Caminho: src/components/${subPath}/${kebabName}`);
+console.log(`🏷 Classe: ${className}`);
