@@ -1,19 +1,31 @@
 import { defineConfig } from "vite";
+import path from "path";
 import { readFileSync, writeFileSync } from "fs";
 
 export default defineConfig({
   base: "/mimojs/",
-
+  resolve: {
+    alias: {
+      "@components": path.resolve(__dirname, "src/components"),
+      "@core": path.resolve(__dirname, "src/core"),
+    },
+  },
   build: {
     outDir: "dist",
+
     lib: {
       entry: "src/main.ts",
       name: "mimojs",
       fileName: "mimojs",
-      formats: ["es", "umd"],
+      formats: ["es"],
+    },
+
+    rollupOptions: {
+      output: {
+        inlineDynamicImports: true, // 🔥 ESSENCIAL
+      },
     },
   },
-
   plugins: [
     {
       name: "replace-script-in-build",
