@@ -1,5 +1,15 @@
 {
   "compilerOptions": {
+    "ignoreDeprecations": "6.0",
+    "baseUrl": ".",
+    "paths": {
+      "@components/*": [
+        "src/components/*"
+      ],
+      "@core/*": [
+        "src/core/*"
+      ]
+    },
     "target": "ESNext",
     "useDefineForClassFields": false,
     "module": "ESNext",
@@ -7,7 +17,12 @@
     "strict": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "lib": ["ESNext", "DOM"]
+    "lib": [
+      "ESNext",
+      "DOM"
+    ]
   },
-  "include": ["src"]
+  "include": [
+    "src"
+  ]
 }
