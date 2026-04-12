@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "generate": "node scripts/generate-component.js"
+    "generate": "node scripts/generate-component.js",
+    "remove": "node scripts/remove-component.js"
   },
   "devDependencies": {
     "typescript": "^5.4.0",
