@@ -19,7 +19,7 @@ export abstract class BaseComponent extends HTMLElement {
     return this.prototype.attributeList || [];
   }
 
-  connectedCallback(): void {
+  public connectedCallback(): void {
     if (this.initialized) return;
     this.initialized = true;
 
@@ -45,8 +45,9 @@ export abstract class BaseComponent extends HTMLElement {
     this.render();
   }
 
-  attributeChangedCallback(): void {
+  public attributeChangedCallback(name: string, oldValue: any, newValue: any): void {
     if (!this.initialized) return;
+    if (oldValue === newValue) return;
     this.render();
   }
 
@@ -94,6 +95,7 @@ export abstract class BaseComponent extends HTMLElement {
   }
 
   set value(val: any) {
+    if (this._value === val) return;
     this._value = val;
     this.setAttribute("value", val);
     this.render();
