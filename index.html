@@ -2,23 +2,31 @@
 <html>
   <head>
     <title>MimoJS</title>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
   </head>
 
   <body>
     <h1>MimoJS Web Components</h1>
-    <mimo-input id="nome" value="Digite seu nome"></mimo-input>
-    <mimo-input id="sobrenome" value="Digite seu sobrenome"></mimo-input>
+    <div style="margin-top: 20px">
+      <h3>mimo-input</h3>
+      <mimo-input id="nome" value="Digite seu nome"></mimo-input>
+    </div>
 
     <div style="margin-top: 20px">
+      <h3>mimo-button</h3>
       <mimo-button></mimo-button>
     </div>
+
     <div style="margin-top: 20px">
+      <h3>mimo-radio</h3>
       <mimo-radio></mimo-radio>
     </div>
+
     <div style="margin-top: 20px">
+      <h3>mimo-card</h3>
       <mimo-card></mimo-card>
     </div>
+    
     <script type="module" src="/src/main.ts"></script>
     <script>
       customElements.whenDefined("mimo-input").then(() => {
