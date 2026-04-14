@@ -41,7 +41,6 @@ export class MimoInput extends BaseComponent {
         "maxlength",
         "size",
         "placeholder",
-        "type",
       ]),
     );
   }
