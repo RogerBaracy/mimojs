@@ -1,8 +1,8 @@
-import template from "./mimo-input.html?raw";
-import style from "./mimo-input.css?raw";
+import template from "./mimo-input-text.html?raw";
+import style from "./mimo-input-text.css?raw";
 import { BaseComponent } from "@core/base-component";
 
-export class MimoInput extends BaseComponent {
+export class MimoInputText extends BaseComponent {
   public template = template;
   public stylesheet = style;
 
@@ -46,4 +46,4 @@ export class MimoInput extends BaseComponent {
   }
 }
 
-customElements.define("mimo-input", MimoInput);
+customElements.define("mimo-input-text", MimoInputText);
