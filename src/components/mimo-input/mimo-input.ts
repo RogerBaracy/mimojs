@@ -20,7 +20,11 @@ export class MimoInput extends BaseComponent {
 
   protected init(): void {
     this.element.addEventListener("input", (e: any) => {
-      this._value = e.target.value;
+      const newValue = e.target.value;
+
+      if (newValue === this._value) return;
+
+      this._value = newValue;
       this.emit("valueChange", this._value);
     });
   }
