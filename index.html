@@ -9,7 +9,10 @@
     <h1>MimoJS Web Components</h1>
     <div style="margin-top: 20px">
       <h3>mimo-input</h3>
-      <mimo-input id="nome" value="Digite seu nome"></mimo-input>
+
+      <mimo-input id="nome" placeholder="Placeholder" 
+        ><label slot="label">Nome</label></mimo-input
+      >
     </div>
 
     <div style="margin-top: 20px">
@@ -26,34 +29,7 @@
       <h3>mimo-card</h3>
       <mimo-card></mimo-card>
     </div>
-    
-    <script type="module" src="/src/main.ts"></script>
-    <script>
-      customElements.whenDefined("mimo-input").then(() => {
-        const nome = document.querySelector("#nome");
-        nome.setAttributes({
-          disabled: false,
-          data: "campo-text",
-          placeholder: "Digite seu nome",
-          maxlength: "20",
-        });
-        console.log("nome:", nome);
-        nome.addEventListener("valueChange", (e) => {
-          console.log("nome mudou:", e.detail);
-        });
 
-        const sobrenome = document.querySelector("#sobrenome");
-        sobrenome.setAttributes({
-          disabled: false,
-          data: "campo-text",
-          placeholder: "Digite seu sobrenome",
-          maxlength: "20",
-        });
-        console.log("sobrenome:", sobrenome);
-        sobrenome.addEventListener("valueChange", (e) => {
-          console.log("sobrenome mudou:", e.detail);
-        });
-      });
-    </script>
+    <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
