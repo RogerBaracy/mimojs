@@ -2,7 +2,7 @@ import { defineConfig } from "vite";
 import path from "path";
 import { readFileSync, writeFileSync } from "fs";
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   base: "/mimojs/",
   resolve: {
     alias: {
@@ -12,11 +12,16 @@ export default defineConfig({
   },
   build: {
     outDir: "dist",
+    minify: "terser",
+    terserOptions: {
+      compress: true,
+      mangle: true,
+    },
 
     lib: {
       entry: "src/main.ts",
       name: "mimojs",
-      fileName: "mimojs",
+      fileName: mode === "min" ? "mimojs.min" : "mimojs",
       formats: ["es"],
     },
 
@@ -32,7 +37,7 @@ export default defineConfig({
       closeBundle() {
         let html = readFileSync("index.html", "utf-8");
 
-        html = html.replace("/src/main.ts", "./mimojs.mjs");
+        html = html.replace("/src/main.ts", `./mimojs.min.mjs`);
 
         writeFileSync("dist/index.html", html);
       },
@@ -43,4 +48,4 @@ export default defineConfig({
     host: true,
     port: 5173,
   },
-});
+}));
