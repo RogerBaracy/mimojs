@@ -80,6 +80,7 @@ export class MimoInputText extends BaseComponent {
   // ===============================
   private validate() {
     const isValid = this.input.checkValidity();
+    const isEmpty = this.input.value === "";
 
     if (isValid === true) {
       this.removeAttribute("invalid");
@@ -87,6 +88,11 @@ export class MimoInputText extends BaseComponent {
     } else {
       this.removeAttribute("valid");
       this.setAttribute("invalid", "true");
+    }
+
+    if (isEmpty) {
+      this.removeAttribute("valid");
+      this.removeAttribute("invalid");
     }
 
     // emite estado
