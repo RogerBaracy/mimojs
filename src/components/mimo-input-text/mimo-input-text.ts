@@ -85,6 +85,7 @@ export class MimoInputText extends BaseComponent {
       this.setAttribute("invalid", "true");
     } else {
       this.removeAttribute("invalid");
+      this.setAttribute("valid", "true");
     }
 
     // emite estado
