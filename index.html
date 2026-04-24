@@ -10,11 +10,13 @@
     <div style="margin-top: 20px">
       <h3>mimo-input-text</h3>
 
-      <mimo-input-text id="nome" placeholder="Placeholder"
+      <mimo-input-text
+        id="nome"
+        placeholder="Placeholder"
+        pattern="^\d{3}-\d{3}-\d{4}$"
         ><label slot="label">Nome</label></mimo-input-text
       >
     </div>
-
     <div style="margin-top: 20px">
       <h3>mimo-button</h3>
       <mimo-button></mimo-button>
