@@ -82,12 +82,12 @@ export class MimoInputText extends BaseComponent {
   private validate() {
     const isValid = this.input.checkValidity();
 
-    if (isValid === false) {
-      this.removeAttribute("valid");
-      this.setAttribute("invalid", "true");
-    } else {
+    if (isValid === true) {
       this.removeAttribute("invalid");
       this.setAttribute("valid", "true");
+    } else {
+      this.removeAttribute("valid");
+      this.setAttribute("invalid", "true");
     }
 
     // emite estado
@@ -95,15 +95,19 @@ export class MimoInputText extends BaseComponent {
   }
 
   private checkRequired() {
+    let isValid: boolean = true;
     const isRequired = this.input.required;
     const isEmpty = this.input.value.trim() === "";
 
     if (isRequired && isEmpty) {
       this.removeAttribute("valid");
       this.setAttribute("invalid", "true");
+      isValid = false;
     } else {
       this.removeAttribute("invalid");
     }
+
+    this.emit("validityChange", isValid);
   }
 
   // ===============================
