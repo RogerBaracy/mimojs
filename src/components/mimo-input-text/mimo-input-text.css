@@ -2,10 +2,6 @@
   border-color: red;
   background: #ffe6e6;
 }
-:host([valid]) input {
-  border-color: green;
-  background: #e6ffe6;
-}
 
 .container {
   display: flex;
