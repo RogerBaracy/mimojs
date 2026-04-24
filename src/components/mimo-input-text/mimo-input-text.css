@@ -1,6 +1,10 @@
 :host([invalid]) input {
   border-color: red;
-  background: #ffe6e6;
+  background: #e7c1c1;
+}
+:host([valid]) input {
+  border-color: green;
+  background: #afddaf;
 }
 
 .container {
