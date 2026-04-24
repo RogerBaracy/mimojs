@@ -83,6 +83,7 @@ export class MimoInputText extends BaseComponent {
 
     if (!isValid) {
       this.setAttribute("invalid", "true");
+      this.removeAttribute("valid");
     } else {
       this.removeAttribute("invalid");
       this.setAttribute("valid", "true");
