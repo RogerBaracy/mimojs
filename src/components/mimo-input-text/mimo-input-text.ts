@@ -16,6 +16,7 @@ export class MimoInputText extends BaseComponent {
     "maxlength",
     "pattern",
     "size",
+    "required",
   ];
 
   private input!: HTMLInputElement;
@@ -102,6 +103,7 @@ export class MimoInputText extends BaseComponent {
       "maxlength",
       "pattern",
       "size",
+      "required",
     ];
   }
 }
