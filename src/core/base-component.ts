@@ -1,34 +1,27 @@
 export abstract class BaseComponent extends HTMLElement {
   protected shadow!: ShadowRoot;
-  protected element!: HTMLElement;
 
-  protected _value: any = "";
+  // Template HTML e CSS que cada componente define
+  protected abstract htmlTemplate: string;
+  protected abstract cssStyles: string;
 
-  public abstract template: string;
-  public abstract stylesheet: string;
+  // Elemento raiz do componente (ex: #input, #root, etc)
   protected abstract elementSelector: string;
+
+  // Lista de atributos que o componente observa
   protected abstract attributeList: string[];
 
-  private initialized = false;
+  // Elemento principal (input, div, etc)
+  protected element!: HTMLElement;
 
   constructor() {
     super();
-  }
-
-  static get observedAttributes(): string[] {
-    return this.prototype.attributeList || [];
-  }
-
-  public connectedCallback(): void {
-    if (this.initialized) return;
-    this.initialized = true;
-
     this.shadow = this.attachShadow({ mode: "open" });
+  }
 
-    this.shadow.innerHTML = `
-      <style>${this.stylesheet}</style>
-      ${this.template}
-    `;
+  // Quando o componente entra no DOM
+  connectedCallback(): void {
+    this.renderTemplate(); // 🔥 PRIMEIRO
 
     this.element = this.shadow.querySelector(
       this.elementSelector,
@@ -41,69 +34,73 @@ export abstract class BaseComponent extends HTMLElement {
       return;
     }
 
-    this.init();
+    this.init(); // ✅ agora pode usar
     this.render();
   }
 
-  public attributeChangedCallback(name: string, oldValue: any, newValue: any): void {
-    if (!this.initialized) return;
-    if (oldValue === newValue) return;
-    this.render();
+  private renderTemplate() {
+    this.shadow.innerHTML = `
+      <style>${this.cssStyles}</style>
+      ${this.htmlTemplate}
+    `;
   }
 
-  protected init(): void {}
-
-  protected setAttributes(attributes: Record<string, any>): void {
-    if (!this.element) return;
-
-    Object.entries(attributes).forEach(([name, value]) => {
-      if (value === false || value === null || value === undefined) {
-        this.element.removeAttribute(name);
-        return;
-      }
-
-      if (value === true) {
-        this.element.setAttribute(name, "");
-        return;
-      }
-
-      this.element.setAttribute(name, String(value));
-    });
+  // Observa atributos automaticamente
+  static get observedAttributes() {
+    return [];
   }
 
-  protected getAttributes(names: string[]): Record<string, any> {
+  // Quando atributo muda
+  attributeChangedCallback(name: string, oldValue: string, newValue: string) {
+    if (oldValue !== newValue) {
+      this.render();
+    }
+  }
+
+  // ===============================
+  // 🔁 UTILIDADES
+  // ===============================
+
+  // Retorna atributos atuais como objeto
+  protected getAttributes(names: string[]) {
     const attrs: Record<string, any> = {};
 
     names.forEach((name) => {
-      if (this.hasAttribute(name)) {
-        const value = this.getAttribute(name);
-        attrs[name] = value === "" ? true : value;
+      const value = this.getAttribute(name);
+      if (value !== null) {
+        attrs[name] = value;
       }
     });
 
     return attrs;
   }
 
-  protected emit(eventName: string, value: any): void {
+  // Aplica atributos no elemento interno
+  protected setAttributes(attrs: Record<string, any>) {
+    Object.entries(attrs).forEach(([key, value]) => {
+      if (value === null || value === undefined) {
+        this.element.removeAttribute(key);
+      } else {
+        this.element.setAttribute(key, value);
+      }
+    });
+  }
+
+  // Emite eventos padrão
+  protected emit(eventName: string, detail?: any) {
     this.dispatchEvent(
       new CustomEvent(eventName, {
-        detail: value,
+        detail,
         bubbles: true,
         composed: true,
       }),
     );
   }
 
-  set value(val: any) {
-    if (this._value === val) return;
-    this._value = val;
-    this.setAttribute("value", val);
-    this.render();
-  }
+  // ===============================
+  // 🔒 MÉTODOS ABSTRATOS
+  // ===============================
 
-  get value(): any {
-    return this._value;
-  }
-
+  protected abstract init(): void;
   protected abstract render(): void;
 }
