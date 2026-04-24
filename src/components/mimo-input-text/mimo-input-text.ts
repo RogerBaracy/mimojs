@@ -49,6 +49,7 @@ export class MimoInputText extends BaseComponent {
     // Validação ao sair do campo
     this.input.addEventListener("blur", () => {
       this.validate();
+      this.checkRequired();
     });
   }
 
@@ -81,9 +82,9 @@ export class MimoInputText extends BaseComponent {
   private validate() {
     const isValid = this.input.checkValidity();
 
-    if (!isValid) {
-      this.setAttribute("invalid", "true");
+    if (isValid === false) {
       this.removeAttribute("valid");
+      this.setAttribute("invalid", "true");
     } else {
       this.removeAttribute("invalid");
       this.setAttribute("valid", "true");
@@ -91,6 +92,19 @@ export class MimoInputText extends BaseComponent {
 
     // emite estado
     this.emit("validityChange", isValid);
+  }
+
+  private checkRequired() {
+    const isRequired = this.input.required;
+    const isEmpty = this.input.value.trim() === "";
+
+    if (isRequired && isEmpty) {
+      this.removeAttribute("valid");
+      this.setAttribute("invalid", "true");
+    } else {
+      this.removeAttribute("invalid");
+      this.setAttribute("valid", "true");
+    }
   }
 
   // ===============================
