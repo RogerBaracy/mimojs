@@ -1,39 +1,101 @@
-<!doctype html>
-<html>
-  <head>
-    <title>MimoJS</title>
-    <meta charset="utf-8" />
-  </head>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>MimoJS Docs</title>
 
-  <body>
-    <h1>MimoJS Web Components</h1>
-    <div style="margin-top: 20px">
-      <mimo-input-text
-        id="nome"
-        placeholder="xxx-xxx-xxxx"
-        pattern="^\d{3}-\d{3}-\d{4}$"
-        maxlength="12"
-        size="12"
-      >
-        <h3 slot="top">mimo-input-text</h3>
-        <span slot="label">Nome</span></mimo-input-text
-      >
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial;
+      display: flex;
+      height: 100vh;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 260px;
+      background: #111;
+      color: white;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .sidebar h2 {
+      margin-top: 0;
+    }
+
+    .component {
+      cursor: pointer;
+      margin: 10px 0;
+      padding: 6px;
+      border-radius: 4px;
+    }
+
+    .component:hover {
+      background: #222;
+    }
+
+    /* MAIN */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      padding: 10px 20px;
+      background: #eee;
+      border-bottom: 1px solid #ccc;
+    }
+
+    iframe {
+      flex: 1;
+      width: 100%;
+      border: none;
+      background: white;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <h2>📦 MimoJS</h2>
+    <div id="component-list">
+      
+<div class="component" onclick="loadDoc('MimoInputText', './src/components/mimo-input-text/doc/mimo-input-text.doc.html')">
+  MimoInputText
+</div>
+
+
+<div class="component" onclick="loadDoc('MimoButton', './src/components/mimo-button/doc/mimo-button.doc.html')">
+  MimoButton
+</div>
+
+<!-- COMPONENTS -->
     </div>
-    <div style="margin-top: 20px">
-      <h3>mimo-button</h3>
-      <mimo-button></mimo-button>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="header" id="title">
+      Selecione um componente
     </div>
 
-    <div style="margin-top: 20px">
-      <h3>mimo-radio</h3>
-      <mimo-radio></mimo-radio>
-    </div>
+    <iframe id="viewer"></iframe>
+  </div>
 
-    <div style="margin-top: 20px">
-      <h3>mimo-card</h3>
-      <mimo-card></mimo-card>
-    </div>
+  <script>
+    const viewer = document.getElementById("viewer");
+    const title = document.getElementById("title");
 
-    <script type="module" src="/src/main.ts"></script>
-  </body>
+    function loadDoc(name, path) {
+      title.innerText = name;
+      viewer.src = path;
+    }
+  </script>
+
+</body>
 </html>

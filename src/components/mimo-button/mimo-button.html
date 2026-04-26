@@ -1,1 +1,11 @@
-<button type="button">Mimo Button</button>
+<div class="mimo-button">
+  <slot name="top"></slot>
+  <div class="container">
+    <slot name="left"></slot>
+    <button><slot name="text-button"></slot></button>
+    <slot name="right"></slot>
+  </div>
+  <div>
+    <slot name="button"></slot>
+  </div>
+</div>

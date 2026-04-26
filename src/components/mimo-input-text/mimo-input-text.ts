@@ -8,7 +8,7 @@ export class MimoInputText extends BaseComponent {
 
   protected elementSelector = "#input";
 
-  protected attributeList = [
+  protected attributesList = [
     "value",
     "placeholder",
     "disabled",
@@ -19,8 +19,13 @@ export class MimoInputText extends BaseComponent {
     "required",
   ];
 
+  protected eventsList = ["valueChange", "input", "change", "blur"];
+
   private input!: HTMLInputElement;
-  private _value: string = "";
+
+  constructor() {
+    super();
+  }
 
   // ===============================
   // 🚀 INIT
@@ -33,6 +38,12 @@ export class MimoInputText extends BaseComponent {
       return;
     }
 
+    this.eventsList.forEach((eventName) => {
+      this.input.addEventListener(eventName, (event) => {
+        this.emit(eventName, event);
+      });
+    });
+
     this.input.addEventListener("input", () => {
       const newValue = this.input.value;
 
@@ -43,7 +54,8 @@ export class MimoInputText extends BaseComponent {
 
       // emite evento para Angular / externo
       this.emit("valueChange", this._value);
-      this.removeAttribute("invalid"); // remove erro ao digitar
+      this.removeAttribute("valid");
+      this.removeAttribute("invalid");
     });
 
     // Validação ao sair do campo
@@ -59,7 +71,7 @@ export class MimoInputText extends BaseComponent {
     if (!this.input) return;
 
     // aplica atributos no input
-    this.setAttributes(this.getAttributes(this.attributeList));
+    this.setAttributes(this.getAttributes(this.attributesList));
     this.setAttribute("type", "text"); // força tipo text
 
     // sincroniza value com proteção
@@ -79,10 +91,22 @@ export class MimoInputText extends BaseComponent {
   // ✅ VALIDAÇÃO
   // ===============================
   private validate() {
-    const isValid = this.input.checkValidity();
-    const isEmpty = this.input.value === "";
+    const hasPattern = this.input.hasAttribute("pattern");
+    const hasRequired = this.input.hasAttribute("required");
+    const isEmpty = this.input.value.trim() === "";
 
-    if (isValid === true) {
+    let isValid = true;
+
+    if (hasRequired && isEmpty) {
+      isValid = false;
+    } else if (isEmpty && !hasRequired) {
+      // Campo opcional vazio deve ser considerado válido, mesmo com pattern.
+      isValid = true;
+    } else if (hasRequired || hasPattern) {
+      isValid = this.input.checkValidity();
+    }
+
+    if (isValid) {
       this.removeAttribute("invalid");
       this.setAttribute("valid", "true");
     } else {
@@ -90,13 +114,12 @@ export class MimoInputText extends BaseComponent {
       this.setAttribute("invalid", "true");
     }
 
-    if (isEmpty) {
+    this.emit("validityChange", isValid);
+
+    if (isEmpty === true && hasRequired === false) {
       this.removeAttribute("valid");
       this.removeAttribute("invalid");
     }
-
-    // emite estado
-    this.emit("validityChange", isValid);
   }
 
   // ===============================

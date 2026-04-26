@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{{componentName}} Docs</title>
+
+    <style>
+      body {
+        font-family: Arial;
+        padding: 30px;
+        background: #f5f5f5;
+      }
+
+      section {
+        background: white;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .preview {
+        padding: 15px;
+        border: 1px dashed #ccc;
+        margin-bottom: 15px;
+      }
+
+      .controls label {
+        display: block;
+        font-size: 12px;
+        margin-top: 10px;
+      }
+
+      .controls input {
+        display: block;
+        margin-bottom: 5px;
+        padding: 6px;
+        width: 250px;
+      }
+
+      button {
+        padding: 6px 10px;
+        cursor: pointer;
+        margin-top: 10px;
+      }
+
+      pre {
+        background: #222;
+        color: #0f0;
+        padding: 10px;
+        border-radius: 6px;
+        overflow-x: auto;
+      }
+
+      .code-container {
+        position: relative;
+      }
+
+      #copyBtn {
+        position: absolute;
+        right: 10px;
+        top: -5px;
+        border: none;
+        padding: 6px 10px;
+        cursor: pointer;
+        border-radius: 4px;
+      }
+
+      #copyBtn:hover {
+        background: #555;
+      }
+
+      .events-container {
+        position: relative;
+      }
+
+      #events {
+        min-height: 50px;
+        max-height: 120px;
+        overflow-y: auto;
+        background: #111;
+        color: #0f0;
+        padding: 10px;
+        border-radius: 6px;
+      }
+
+      #clearEventsBtn {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+        background: #333;
+        color: white;
+        border: none;
+        padding: 6px 10px;
+        cursor: pointer;
+        border-radius: 4px;
+      }
+
+      #clearEventsBtn:hover {
+        background: #555;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>{{componentName}}</h1>
+    <p>&lt;{{selector}}&gt;</p>
+
+    <!-- ======================== -->
+    <section>
+      <h2>🚀 Preview</h2>
+      <div class="preview" id="preview"></div>
+    </section>
+
+    <!-- ======================== -->
+    <section>
+      <h2>⚙️ Teste interativo</h2>
+      <div class="controls" id="controls"></div>
+      <button onclick="resetComponent()">🧹 Limpar</button>
+    </section>
+
+    <!-- ======================== -->
+    <h2>📄 Código</h2>
+    <div class="code-container">
+      <button id="copyBtn" onclick="copyCode()">📋</button>
+      <pre id="code"></pre>
+    </div>
+
+    <!-- ======================== -->
+    <h2>📡 Eventos</h2>
+    <div class="events-container">
+      <button id="clearEventsBtn" onclick="clearEvents()">🧹 Limpar</button>
+      <pre id="events"></pre>
+    </div>
+
+    <!-- LIB -->
+    <script type="module" src="/src/main.ts"></script>
+
+    <script>
+      const tag = "{{selector}}";
+
+      const preview = document.getElementById("preview");
+      const controls = document.getElementById("controls");
+      const code = document.getElementById("code");
+      const events = document.getElementById("events");
+
+      let el;
+      let componentClass;
+      let props = [];
+      let slots = [];
+      let eventsList = [];
+
+      // =========================
+
+      // =========================
+      // 🔥 INIT (AGUARDANDO COMPONENTE)
+      // =========================
+      async function init() {
+        await customElements.whenDefined(tag);
+
+        componentClass = customElements.get(tag);
+
+        if (!componentClass) {
+          console.warn("Componente não encontrado:", tag);
+          return;
+        }
+
+        // attributesList e eventsList são propriedades de instância
+        const probe = document.createElement(tag);
+
+        console.log("Componente encontrado:", componentClass);
+        const attributes = probe.attributesList ||
+          componentClass.observedAttributes || [
+            "value",
+            "placeholder",
+            "disabled",
+            "readonly",
+            "required",
+          ];
+
+        props = attributes.map((a) => ({
+          name: a,
+          type:
+            a === "disabled" || a === "readonly" || a === "required"
+              ? "boolean"
+              : "string",
+        }));
+
+        slots = getSlotsFromComponent(probe);
+
+        eventsList = probe.eventsList || [
+          "valueChange",
+          "input",
+          "change",
+          "blur",
+        ];
+
+        createComponent();
+        createControls();
+      }
+
+      // =========================
+      // COMPONENT
+      // =========================
+      function createComponent() {
+        preview.innerHTML = "";
+        events.innerText = "";
+
+        el = document.createElement(tag);
+
+        // evento padrão
+        el.addEventListener("valueChange", (e) => {
+          addEvent("valueChange", e.detail);
+        });
+
+        preview.appendChild(el);
+        updateCode();
+      }
+
+      function updateCode() {
+        code.innerText = el.outerHTML;
+      }
+
+      // =========================
+      // CONTROLS DINÂMICOS
+      // =========================
+      function createControls() {
+        controls.innerHTML = "";
+
+        const attrsTitle = document.createElement("h3");
+        attrsTitle.innerText = "Atributos";
+        controls.appendChild(attrsTitle);
+
+        props.forEach((p) => {
+          const label = document.createElement("label");
+          label.innerText = p.name;
+
+          let input;
+
+          if (p.type === "boolean") {
+            input = document.createElement("input");
+            input.type = "checkbox";
+
+            input.addEventListener("change", () => {
+              el.toggleAttribute(p.name, input.checked);
+              updateCode();
+            });
+          } else {
+            input = document.createElement("input");
+            input.placeholder = p.name;
+
+            input.addEventListener("input", () => {
+              if (input.value) {
+                el.setAttribute(p.name, input.value);
+              } else {
+                el.removeAttribute(p.name);
+              }
+
+              updateCode();
+            });
+          }
+
+          controls.appendChild(label);
+          controls.appendChild(input);
+        });
+
+        if (slots.length > 0) {
+          const slotsTitle = document.createElement("h3");
+          slotsTitle.innerText = "Slots";
+          controls.appendChild(slotsTitle);
+
+          slots.forEach((slotName) => {
+            const label = document.createElement("label");
+            label.innerText = slotName || "default";
+
+            const input = document.createElement("input");
+            input.placeholder = `conteúdo do slot ${slotName || "default"}`;
+
+            input.addEventListener("input", () => {
+              setSlotContent(slotName, input.value);
+              updateCode();
+            });
+
+            controls.appendChild(label);
+            controls.appendChild(input);
+          });
+        }
+      }
+
+      function getSlotsFromComponent(probe) {
+        if (Array.isArray(probe.slotsList) && probe.slotsList.length > 0) {
+          return probe.slotsList;
+        }
+
+        const tempHost = document.createElement("div");
+        tempHost.style.display = "none";
+        document.body.appendChild(tempHost);
+        tempHost.appendChild(probe);
+
+        const foundSlots = Array.from(
+          probe.shadowRoot?.querySelectorAll("slot") || [],
+        )
+          .map((slotEl) => slotEl.getAttribute("name") || "")
+          .filter((name, index, arr) => arr.indexOf(name) === index);
+
+        tempHost.remove();
+
+        return foundSlots;
+      }
+
+      function setSlotContent(slotName, value) {
+        const slotKey = slotName || "default";
+        const selector = `[data-doc-slot="${slotKey}"]`;
+        const existing = el.querySelector(selector);
+
+        if (!value || !value.trim()) {
+          if (existing) {
+            existing.remove();
+          }
+          return;
+        }
+
+        const target = existing || document.createElement("span");
+        target.setAttribute("data-doc-slot", slotKey);
+
+        if (slotName) {
+          target.setAttribute("slot", slotName);
+        } else {
+          target.removeAttribute("slot");
+        }
+
+        target.textContent = value;
+
+        if (!existing) {
+          el.appendChild(target);
+        }
+      }
+
+      // =========================
+      // EVENTS LOG
+      // =========================
+      function addEvent(name, detail) {
+        const time = new Date().toLocaleTimeString();
+
+        events.innerText += `[${time}] ${name}: ${detail}\n`;
+        events.scrollTop = events.scrollHeight;
+      }
+
+      function clearEvents() {
+        events.innerText = "";
+      }
+
+      // =========================
+      // RESET
+      // =========================
+      function resetComponent() {
+        init();
+      }
+
+      // =========================
+      // COPY
+      // =========================
+      function copyCode() {
+        navigator.clipboard.writeText(code.innerText).then(() => {
+          const btn = document.getElementById("copyBtn");
+          const original = btn.innerText;
+
+          btn.innerText = "✅";
+
+          setTimeout(() => {
+            btn.innerText = original;
+          }, 1000);
+        });
+      }
+
+      // start
+      init();
+    </script>
+  </body>
+</html>

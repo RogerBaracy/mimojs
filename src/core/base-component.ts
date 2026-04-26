@@ -9,14 +9,27 @@ export abstract class BaseComponent extends HTMLElement {
   protected abstract elementSelector: string;
 
   // Lista de atributos que o componente observa
-  protected abstract attributeList: string[];
+  protected abstract attributesList: string[];
+
+  protected abstract eventsList: string[];
 
   // Elemento principal (input, div, etc)
   protected element!: HTMLElement;
 
+  protected _value: any;
+
+  get value() {
+    return this._value;
+  }
+
+  set value(val: any) {
+    this._value = val;
+    this.render();
+  }
+
   constructor() {
     super();
-    this.shadow = this.attachShadow({ mode: "open" });
+    this.shadow = this.attachShadow({ mode: "open", delegatesFocus: true });
   }
 
   // Quando o componente entra no DOM
@@ -51,7 +64,11 @@ export abstract class BaseComponent extends HTMLElement {
   }
 
   // Quando atributo muda
-  attributeChangedCallback(name: string, oldValue: string, newValue: string) {
+  public attributeChangedCallback(
+    name: string,
+    oldValue: string,
+    newValue: string,
+  ) {
     if (oldValue !== newValue) {
       this.render();
     }

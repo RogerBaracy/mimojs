@@ -48,12 +48,24 @@ const applyTemplate = (template, variables) => {
   return result;
 };
 
+// 👉 escreve somente se não existir
+const writeIfNotExists = (filePath, content, label) => {
+  if (fs.existsSync(filePath)) {
+    console.log(`ℹ️ ${label} já existe → ignorado`);
+    return;
+  }
+
+  fs.writeFileSync(filePath, content);
+  console.log(`✅ ${label} criado`);
+};
+
 // ===============================
 // 📁 BASE PATH
 // ===============================
 
 const baseComponentsPath = path.join(__dirname, "../src/components");
 const templatesPath = path.join(__dirname, "../templates/component");
+const docTemplatePath = path.join(__dirname, "../templates/component.doc.html");
 
 // ===============================
 // 🧩 PROCESSA INPUT
@@ -71,26 +83,24 @@ const className = toPascalCase(kebabName);
 
 // caminhos
 const folderPath = path.join(baseComponentsPath, subPath, kebabName);
+const docFolderPath = path.join(folderPath, "doc");
 
 const tsPath = path.join(folderPath, `${kebabName}.ts`);
 const htmlPath = path.join(folderPath, `${kebabName}.html`);
 const cssPath = path.join(folderPath, `${kebabName}.css`);
+const docPath = path.join(docFolderPath, `${kebabName}.doc.html`);
 
 // ===============================
-// 📁 CRIA PASTA
+// 📁 CRIA PASTAS
 // ===============================
 
 if (!fs.existsSync(folderPath)) {
   fs.mkdirSync(folderPath, { recursive: true });
 }
 
-// ===============================
-// 🚫 EVITA SOBRESCREVER
-// ===============================
-
-if (fs.existsSync(tsPath)) {
-  console.error("❌ Componente já existe!");
-  process.exit(1);
+// 👉 cria pasta doc
+if (!fs.existsSync(docFolderPath)) {
+  fs.mkdirSync(docFolderPath, { recursive: true });
 }
 
 // ===============================
@@ -123,19 +133,58 @@ const tsTemplate = applyTemplate(readTemplate(tsTplPath), variables);
 const htmlTemplate = applyTemplate(readTemplate(htmlTplPath), variables);
 const cssTemplate = applyTemplate(readTemplate(cssTplPath), variables);
 
+// 👉 doc template
+let docTemplate = readTemplate(docTemplatePath);
+
+docTemplate = docTemplate
+  .replace(/{{componentName}}/g, className)
+  .replace(/{{selector}}/g, kebabName);
+
 // ===============================
-// 💾 ESCREVE ARQUIVOS
+// 💾 ESCREVE SOMENTE O QUE FALTA
 // ===============================
 
-fs.writeFileSync(tsPath, tsTemplate);
-fs.writeFileSync(htmlPath, htmlTemplate);
-fs.writeFileSync(cssPath, cssTemplate);
+writeIfNotExists(tsPath, tsTemplate, "TS");
+writeIfNotExists(htmlPath, htmlTemplate, "HTML");
+writeIfNotExists(cssPath, cssTemplate, "CSS");
+writeIfNotExists(docPath, docTemplate, "DOC");
 
 // ===============================
 // ✅ FINAL
 // ===============================
 
-console.log(`\n✅ Componente criado com sucesso!`);
-console.log(`📦 Nome: ${kebabName}`);
+console.log(`\n📦 Componente: ${kebabName}`);
 console.log(`📁 Caminho: src/components/${subPath}/${kebabName}`);
 console.log(`🏷 Classe: ${className}`);
+
+// ===============================
+// 📚 GERAR SIDEBAR
+// ===============================
+const relativeDocPath = `./src/components/${subPath ? subPath + "/" : ""}${kebabName}/doc/${kebabName}.doc.html`;
+
+const componentItem = `
+<div class="component" onclick="loadDoc('${className}', '${relativeDocPath}')">
+  ${className}
+</div>
+`;
+// ===============================
+// 📚 ATUALIZA INDEX RAIZ
+// ===============================
+const rootIndexPath = path.join(__dirname, "../index.html");
+
+if (fs.existsSync(rootIndexPath)) {
+  let content = fs.readFileSync(rootIndexPath, "utf-8");
+
+  if (!content.includes(relativeDocPath)) {
+    content = content.replace(
+      "<!-- COMPONENTS -->",
+      `${componentItem}\n<!-- COMPONENTS -->`,
+    );
+
+    fs.writeFileSync(rootIndexPath, content);
+
+    console.log("📚 Componente adicionado ao viewer");
+  } else {
+    console.log("ℹ️ Já existe no viewer");
+  }
+}

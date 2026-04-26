@@ -1,10 +1,15 @@
-<div>
+<div class="mimo-input-text">
   <slot name="top"></slot>
 
-  <label for="input"><slot name="label"></slot></label>
+  <label id="label">
+    <slot name="label"></slot>
+  </label>
+
   <div class="container">
     <slot name="left"></slot>
-    <input id="input" type="text" class="mimo-input" name="input" />
+
+    <input id="input"/>
+
     <slot name="right"></slot>
   </div>
 

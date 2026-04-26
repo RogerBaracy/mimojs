@@ -1,10 +1,18 @@
-:host([invalid]) input {
-  border-color: red;
-  background: #e7c1c1;
+:host {
+  display: block;
 }
+
+:host([invalid]) input {
+  border-color: var(--mimo-color-error, red);
+}
+
 :host([valid]) input {
-  border-color: green;
-  background: #c2ebc2;
+  border-color: var(--mimo-color-success, green);
+}
+
+:host([disabled]) input {
+  background: #c8c8c8;
+  cursor: not-allowed;
 }
 
 .container {

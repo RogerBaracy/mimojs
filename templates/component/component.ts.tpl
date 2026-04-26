@@ -9,21 +9,25 @@ export class __CLASS__ extends BaseComponent {
 
   protected elementSelector = "#root";
 
-  protected attributeList = [
+  protected attributesList = [
     "value"
   ];
 
+  protected eventsList = ["valueChange", "input", "blur", "change"];
+
   protected init(): void {
+    this.eventsList.forEach((eventName) => {
+      this.input.addEventListener(eventName, (event) => {
+        this.emit(eventName, event);
+      });
+    });
 
   }
 
   protected render(): void {
     this.setAttributes(
-      this.getAttributes([
-        "value"
-      ])
+      this.getAttributes(this.attributesList)
     );
-
   }
 }
 
