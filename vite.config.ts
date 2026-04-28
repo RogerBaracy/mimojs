@@ -62,8 +62,8 @@ export default defineConfig(({ mode }: { mode: string }) => ({
 
         const replaceDocScriptSrc = (html: string, targetScript: string) => {
           return html.replace(
-            /<script\s+type="module"\s+src="[^"]*"><\/script>/,
-            `<script type="module" src="${targetScript}"></script>`,
+            /(<script\b[^>]*\btype=["']module["'][^>]*\bsrc=["'])(?:\/|\.\/)?src\/main\.ts(["'][^>]*><\/script>)/g,
+            `$1${targetScript}$2`,
           );
         };
 
