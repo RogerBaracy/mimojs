@@ -69,6 +69,10 @@ export default defineConfig(({ mode }: { mode: string }) => ({
 
         let html = readFileSync("index.html", "utf-8");
         html = html.replace("/src/main.ts", `./${outFileName}`);
+        html = html.replace(
+          "./public/assets/mimo-grid.css",
+          "./assets/mimo-grid.css",
+        );
         writeFileSync(path.join(distDir, "index.html"), html);
 
         const docFiles = collectDocFiles(docsRoot);
