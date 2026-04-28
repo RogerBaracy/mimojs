@@ -2,23 +2,31 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>MimoJS Docs</title>
+
+  <link rel="stylesheet" href="assets/mimo-grid.css" />
 
   <style>
     body {
       margin: 0;
       font-family: Arial;
-      display: flex;
-      height: 100vh;
+    }
+
+    /* GRID ALTURA */
+    .full-height {
+      min-height: 100vh;
     }
 
     /* SIDEBAR */
     .sidebar {
-      width: 260px;
       background: #111;
       color: white;
       padding: 20px;
+      height: 100vh;
       overflow-y: auto;
+
+      transition: transform 0.3s ease;
     }
 
     .sidebar h2 {
@@ -36,65 +44,172 @@
       background: #222;
     }
 
+    /* MOBILE MENU */
+    .menu-button {
+      display: none;
+      background: #111;
+      color: white;
+      border: none;
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    /* OVERLAY */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+    }
+
     /* MAIN */
     .main {
-      flex: 1;
       display: flex;
       flex-direction: column;
+      height: 100vh;
     }
 
     .header {
       padding: 10px 20px;
       background: #eee;
       border-bottom: 1px solid #ccc;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
+    /* IFRAME TRANSIÇÃO */
     iframe {
       flex: 1;
       width: 100%;
       border: none;
       background: white;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    iframe.loaded {
+      opacity: 1;
+    }
+
+    /* MOBILE */
+    @media (max-width: 767px) {
+      .menu-button {
+        display: block;
+      }
+
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 260px;
+        transform: translateX(-100%);
+        z-index: 1000;
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .overlay.show {
+        display: block;
+      }
     }
   </style>
 </head>
 
 <body>
 
-  <!-- SIDEBAR -->
-  <div class="sidebar">
-    <h2>📦 MimoJS</h2>
-    <div id="component-list">
-      
-<div class="component" onclick="loadDoc('MimoInputText', './src/components/mimo-input-text/doc/mimo-input-text.doc.html')">
-  MimoInputText
-</div>
+  <div class="overlay" id="overlay" onclick="closeMenu()"></div>
 
+  <div class="row cols-12 full-height">
 
-<div class="component" onclick="loadDoc('MimoButton', './src/components/mimo-button/doc/mimo-button.doc.html')">
-  MimoButton
-</div>
+    <!-- SIDEBAR -->
+    <aside class="col-12 col-md-3 col-lg-2 sidebar" id="sidebar">
+      <h2>📦 MimoJS</h2>
 
-<!-- COMPONENTS -->
-    </div>
-  </div>
+      <div id="component-list">
 
-  <!-- MAIN -->
-  <div class="main">
-    <div class="header" id="title">
-      Selecione um componente
-    </div>
+        <div class="component"
+             onclick="loadDoc('MimoInputText', './src/components/mimo-input-text/doc/mimo-input-text.doc.html')">
+          MimoInputText
+        </div>
 
-    <iframe id="viewer"></iframe>
+        <div class="component"
+             onclick="loadDoc('MimoButton', './src/components/mimo-button/doc/mimo-button.doc.html')">
+          MimoButton
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="col-12 col-md-9 col-lg-10">
+      <div class="main">
+
+        <div class="header">
+          <button class="menu-button" onclick="toggleMenu()">☰</button>
+          <div id="title">Selecione um componente</div>
+        </div>
+
+        <iframe id="viewer"></iframe>
+
+      </div>
+    </main>
+
   </div>
 
   <script>
     const viewer = document.getElementById("viewer");
     const title = document.getElementById("title");
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("overlay");
 
+    // =========================
+    // MENU MOBILE
+    // =========================
+    function toggleMenu() {
+      sidebar.classList.toggle("open");
+      overlay.classList.toggle("show");
+    }
+
+    function closeMenu() {
+      sidebar.classList.remove("open");
+      overlay.classList.remove("show");
+    }
+
+    // =========================
+    // LOAD DOC + TRANSIÇÃO
+    // =========================
     function loadDoc(name, path) {
       title.innerText = name;
-      viewer.src = path;
+
+      viewer.classList.remove("loaded"); // fade out
+
+      setTimeout(() => {
+        viewer.src = path;
+        localStorage.setItem("mimo-last-doc", JSON.stringify({ name, path }));
+      }, 150);
+
+      closeMenu(); // fecha no mobile
     }
+
+    // quando iframe carregar → fade in
+    viewer.onload = () => {
+      viewer.classList.add("loaded");
+    };
+
+    // =========================
+    // PERSISTÊNCIA
+    // =========================
+    window.addEventListener("DOMContentLoaded", () => {
+      const saved = localStorage.getItem("mimo-last-doc");
+
+      if (saved) {
+        const { name, path } = JSON.parse(saved);
+        loadDoc(name, path);
+      }
+    });
   </script>
 
 </body>
