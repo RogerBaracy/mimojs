@@ -59,7 +59,7 @@ export abstract class BaseComponent extends HTMLElement {
   }
 
   // Observa atributos automaticamente
-  static get observedAttributes() {
+  static get observedAttributes(): string[] {
     return [];
   }
 
