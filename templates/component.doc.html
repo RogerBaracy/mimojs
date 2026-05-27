@@ -69,6 +69,28 @@
         position: relative;
       }
 
+      .code-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+
+      .code-tab {
+        border: 1px solid #bbb;
+        background: #f0f0f0;
+        color: #222;
+        border-radius: 6px;
+        padding: 6px 10px;
+        margin-top: 0;
+      }
+
+      .code-tab.active {
+        background: #222;
+        color: #fff;
+        border-color: #222;
+      }
+
       #copyBtn {
         position: absolute;
         right: 10px;
@@ -113,7 +135,7 @@
         background: #555;
       }
 
-      @media (max-width: 100%) {
+      @media (max-width: 767px) {
         body {
           padding: 14px;
         }
@@ -152,6 +174,21 @@
 
         <div class="col-12 col-md-5">
           <h2>📄 Código</h2>
+          <div class="code-tabs" id="codeTabs">
+            <button
+              class="code-tab active"
+              onclick="setFramework('javascript')"
+            >
+              JavaScript
+            </button>
+            <button class="code-tab" onclick="setFramework('angular')">
+              Angular
+            </button>
+            <button class="code-tab" onclick="setFramework('react')">
+              React
+            </button>
+            <button class="code-tab" onclick="setFramework('vue')">Vue</button>
+          </div>
           <div class="code-container">
             <button id="copyBtn" onclick="copyCode()">📋</button>
             <pre id="code"></pre>
@@ -177,11 +214,13 @@
       const preview = document.getElementById("preview");
       const controls = document.getElementById("controls");
       const code = document.getElementById("code");
+      const codeTabs = document.getElementById("codeTabs");
       const events = document.getElementById("events");
 
       let el;
       let componentClass;
       let extendsTag = null;
+      let selectedFramework = "javascript";
       let props = [];
       let slots = [];
       let eventsList = [];
@@ -278,7 +317,45 @@
       }
 
       function updateCode() {
-        code.innerText = el.outerHTML;
+        code.innerText = getFrameworkCode(selectedFramework);
+      }
+
+      function setFramework(framework) {
+        selectedFramework = framework;
+        updateFrameworkTabs();
+        updateCode();
+      }
+
+      function updateFrameworkTabs() {
+        const buttons = codeTabs.querySelectorAll(".code-tab");
+
+        buttons.forEach((button) => {
+          const isActive = button.innerText
+            .toLowerCase()
+            .includes(selectedFramework);
+          button.classList.toggle("active", isActive);
+        });
+      }
+
+      function getFrameworkCode(framework) {
+        const markup = el.outerHTML;
+        const minLibPath =
+          "https://rogerbaracy.github.io/mimojs/mimojs.min.mjs";
+        const scriptClose = "</" + "script>";
+
+        if (framework === "angular") {
+          return `// app.component.html\n${markup}\n\n// main.ts\nimport "${minLibPath}";\n\n// app.module.ts\nimport { CUSTOM_ELEMENTS_SCHEMA, NgModule } from "@angular/core";\n\n@NgModule({\n  schemas: [CUSTOM_ELEMENTS_SCHEMA],\n})\nexport class AppModule {}`;
+        }
+
+        if (framework === "react") {
+          return `import "${minLibPath}";\n\nexport default function App() {\n  return (\n    <>\n      ${markup}\n    </>\n  );\n}`;
+        }
+
+        if (framework === "vue") {
+          return `<template>\n  ${markup}\n</template>\n\n<script setup>\nimport "${minLibPath}";\n${scriptClose}`;
+        }
+
+        return `<!doctype html>\n<html lang="pt-BR">\n  <head>\n    <meta charset="UTF-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n    <title>Exemplo MimoJS</title>\n    <script type="module" src="${minLibPath}">${scriptClose}\n  </head>\n  <body>\n    ${markup}\n  </body>\n</html>`;
       }
 
       // =========================
