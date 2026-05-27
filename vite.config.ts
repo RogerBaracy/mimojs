@@ -12,8 +12,10 @@ export default defineConfig(({ mode }: { mode: string }) => ({
   base: "/mimojs/",
   resolve: {
     alias: {
+      "@src": path.resolve(__dirname, "src"),
       "@components": path.resolve(__dirname, "src/components"),
       "@core": path.resolve(__dirname, "src/core"),
+      "@assets": path.resolve(__dirname, "public/assets"),
     },
   },
   build: {
@@ -67,6 +69,13 @@ export default defineConfig(({ mode }: { mode: string }) => ({
           );
         };
 
+        const replaceDocGridCssHref = (html: string, targetCss: string) => {
+          return html.replace(
+            /(<link\b[^>]*\bhref=["'])(?:\.\.\/){4}public\/assets\/mimo-grid\.css(["'][^>]*>)/g,
+            `$1${targetCss}$2`,
+          );
+        };
+
         let html = readFileSync("index.html", "utf-8");
         html = html.replace(
           /src="(?:\/|\.\/)?src\/main\.ts"/,
@@ -87,11 +96,18 @@ export default defineConfig(({ mode }: { mode: string }) => ({
           const scriptFromDocToLib = path
             .relative(distDocDir, path.join(distDir, outFileName))
             .replaceAll("\\", "/");
+          const cssFromDocToGrid = path
+            .relative(distDocDir, path.join(distDir, "assets/mimo-grid.css"))
+            .replaceAll("\\", "/");
 
           const docHtml = readFileSync(docFile, "utf-8");
-          const transformedDocHtml = replaceDocScriptSrc(
+          const docWithScript = replaceDocScriptSrc(
             docHtml,
             `./${scriptFromDocToLib}`,
+          );
+          const transformedDocHtml = replaceDocGridCssHref(
+            docWithScript,
+            `./${cssFromDocToGrid}`,
           );
 
           mkdirSync(distDocDir, { recursive: true });
