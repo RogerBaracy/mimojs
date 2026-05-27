@@ -1,7 +1,7 @@
 {
   "name": "mimojs",
   "version": "1.0.0",
-  "homepage": "https://roger-santos.github.io/mimojs/",
+  "homepage": "https://rogerbaracy.github.io/mimojs/",
   "description": "A collection of web components built with TypeScript and Vite.",
   "scripts": {
     "dev": "vite",
