@@ -4,11 +4,23 @@
     <meta charset="UTF-8" />
     <title>MimoInputText Docs</title>
 
+    <link rel="stylesheet" href="../../../../public/assets/mimo-grid.css" />
+
     <style>
       body {
         font-family: Arial;
-        padding: 30px;
+        margin: 0;
+        padding: 20px;
         background: #f5f5f5;
+      }
+
+      .page {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .intro {
+        margin-bottom: 20px;
       }
 
       section {
@@ -35,7 +47,8 @@
         display: block;
         margin-bottom: 5px;
         padding: 6px;
-        width: 250px;
+        width: 100%;
+        max-width: 360px;
       }
 
       button {
@@ -99,38 +112,60 @@
       #clearEventsBtn:hover {
         background: #555;
       }
+
+      @media (max-width: 100%) {
+        body {
+          padding: 14px;
+        }
+
+        section {
+          padding: 14px;
+        }
+
+        .controls input {
+          max-width: none;
+        }
+      }
     </style>
   </head>
 
   <body>
-    <h1>MimoInputText</h1>
-    <p>&lt;mimo-input-text&gt;</p>
+    <div class="page">
+      <div class="intro">
+        <h1>MimoInputText</h1>
+        <p>&lt;mimo-input-text&gt;</p>
+      </div>
 
-    <!-- ======================== -->
-    <section>
-      <h2>🚀 Preview</h2>
-      <div class="preview" id="preview"></div>
-    </section>
+      <div class="row cols-12">
+        <div class="col-12 col-md-7">
+          <section>
+            <h2>🚀 Preview</h2>
+            <div class="preview" id="preview"></div>
+          </section>
 
-    <!-- ======================== -->
-    <section>
-      <h2>⚙️ Teste interativo</h2>
-      <div class="controls" id="controls"></div>
-      <button onclick="resetComponent()">🧹 Limpar</button>
-    </section>
+          <section>
+            <h2>⚙️ Teste interativo</h2>
+            <div class="controls" id="controls"></div>
+            <button onclick="resetComponent()">🧹 Limpar</button>
+          </section>
+        </div>
 
-    <!-- ======================== -->
-    <h2>📄 Código</h2>
-    <div class="code-container">
-      <button id="copyBtn" onclick="copyCode()">📋</button>
-      <pre id="code"></pre>
-    </div>
+        <div class="col-12 col-md-5">
+          <h2>📄 Código</h2>
+          <div class="code-container">
+            <button id="copyBtn" onclick="copyCode()">📋</button>
+            <pre id="code"></pre>
+          </div>
 
-    <!-- ======================== -->
-    <h2>📡 Eventos</h2>
-    <div class="events-container">
-      <button id="clearEventsBtn" onclick="clearEvents()">🧹 Limpar</button>
-      <pre id="events"></pre>
+          <h2>📡 Eventos</h2>
+          <div class="events-container">
+            <button id="clearEventsBtn" onclick="clearEvents()">
+              🧹 Limpar
+            </button>
+            <pre id="events"></pre>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- LIB -->
@@ -169,8 +204,14 @@
         const probe = document.createElement(tag);
 
         console.log("Componente encontrado:", componentClass);
-        const attributes =
-          probe.attributesList || componentClass.observedAttributes || [];
+        const attributes = probe.attributesList ||
+          componentClass.observedAttributes || [
+            "value",
+            "placeholder",
+            "disabled",
+            "readonly",
+            "required",
+          ];
 
         props = attributes.map((a) => ({
           name: a,
@@ -202,9 +243,11 @@
 
         el = document.createElement(tag);
 
-        // evento padrão
-        el.addEventListener("valueChange", (e) => {
-          addEvent("valueChange", e.detail);
+        // Registra dinamicamente todos os eventos públicos do componente.
+        eventsList.forEach((eventName) => {
+          el.addEventListener(eventName, (e) => {
+            addEvent(eventName, e.detail ?? "(sem detail)");
+          });
         });
 
         preview.appendChild(el);
