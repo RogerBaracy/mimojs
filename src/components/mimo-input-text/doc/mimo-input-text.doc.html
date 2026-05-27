@@ -66,7 +66,93 @@
       }
 
       .code-container {
-        position: relative;
+        border: 1px solid #273447;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #0f172a;
+        box-shadow: 0 10px 24px rgba(2, 6, 23, 0.25);
+      }
+
+      .editor-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 8px 10px;
+        background: #111827;
+        border-bottom: 1px solid #243044;
+      }
+
+      .editor-meta {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .editor-dots {
+        display: flex;
+        gap: 6px;
+      }
+
+      .editor-dots span {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+      }
+
+      .editor-dots span:nth-child(1) {
+        background: #fb7185;
+      }
+
+      .editor-dots span:nth-child(2) {
+        background: #fbbf24;
+      }
+
+      .editor-dots span:nth-child(3) {
+        background: #4ade80;
+      }
+
+      #editorLabel {
+        font-size: 12px;
+        color: #a5b4fc;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .editor-body {
+        display: grid;
+        grid-template-columns: 46px 1fr;
+        max-height: 430px;
+        overflow: auto;
+      }
+
+      #lineNumbers {
+        margin: 0;
+        padding: 12px 8px;
+        background: #0b1220;
+        color: #64748b;
+        border-right: 1px solid #243044;
+        text-align: right;
+        font-size: 12px;
+        line-height: 1.55;
+        user-select: none;
+        white-space: pre;
+      }
+
+      #code {
+        margin: 0;
+        min-height: 220px;
+        padding: 12px 14px;
+        border-radius: 0;
+        background: #0f172a;
+        color: #e2e8f0;
+        line-height: 1.55;
+        font-size: 12.5px;
+        overflow: visible;
+        font-family:
+          "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular, Menlo,
+          Monaco, Consolas, "Liberation Mono", monospace;
       }
 
       .code-tabs {
@@ -92,17 +178,16 @@
       }
 
       #copyBtn {
-        position: absolute;
-        right: 10px;
-        top: -5px;
-        border: none;
+        margin-top: 0;
+        border: 1px solid #334155;
+        background: #1f2937;
+        color: #e2e8f0;
         padding: 6px 10px;
-        cursor: pointer;
         border-radius: 4px;
       }
 
       #copyBtn:hover {
-        background: #555;
+        background: #334155;
       }
 
       .events-container {
@@ -147,6 +232,14 @@
         .controls input {
           max-width: none;
         }
+
+        .editor-body {
+          grid-template-columns: 38px 1fr;
+        }
+
+        #code {
+          font-size: 11.5px;
+        }
       }
     </style>
   </head>
@@ -159,7 +252,7 @@
       </div>
 
       <div class="row cols-12">
-        <div class="col-12 col-md-7">
+        <div class="col-12">
           <section>
             <h2>🚀 Preview</h2>
             <div class="preview" id="preview"></div>
@@ -172,7 +265,7 @@
           </section>
         </div>
 
-        <div class="col-12 col-md-5">
+        <div class="col-12">
           <h2>📄 Código</h2>
           <div class="code-tabs" id="codeTabs">
             <button
@@ -190,8 +283,21 @@
             <button class="code-tab" onclick="setFramework('vue')">Vue</button>
           </div>
           <div class="code-container">
-            <button id="copyBtn" onclick="copyCode()">📋</button>
-            <pre id="code"></pre>
+            <div class="editor-header">
+              <div class="editor-meta">
+                <div class="editor-dots">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+                <span id="editorLabel">HTML</span>
+              </div>
+              <button id="copyBtn" onclick="copyCode()">📋</button>
+            </div>
+            <div class="editor-body">
+              <pre id="lineNumbers">1</pre>
+              <pre id="code"></pre>
+            </div>
           </div>
 
           <h2>📡 Eventos</h2>
@@ -214,6 +320,8 @@
       const preview = document.getElementById("preview");
       const controls = document.getElementById("controls");
       const code = document.getElementById("code");
+      const lineNumbers = document.getElementById("lineNumbers");
+      const editorLabel = document.getElementById("editorLabel");
       const codeTabs = document.getElementById("codeTabs");
       const events = document.getElementById("events");
 
@@ -294,7 +402,28 @@
       }
 
       function updateCode() {
-        code.innerText = getFrameworkCode(selectedFramework);
+        const snippet = getFrameworkCode(selectedFramework);
+        code.innerText = snippet;
+        updateEditorMeta();
+        updateLineNumbers(snippet);
+      }
+
+      function updateEditorMeta() {
+        const labels = {
+          javascript: "HTML",
+          angular: "Angular",
+          react: "React",
+          vue: "Vue",
+        };
+
+        editorLabel.innerText = labels[selectedFramework] || "Codigo";
+      }
+
+      function updateLineNumbers(text) {
+        const totalLines = Math.max(1, text.split("\n").length);
+        lineNumbers.innerText = Array.from({ length: totalLines }, (_, index) =>
+          String(index + 1),
+        ).join("\n");
       }
 
       function setFramework(framework) {
